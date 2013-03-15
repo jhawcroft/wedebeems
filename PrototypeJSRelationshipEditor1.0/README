@@ -1,0 +1,64 @@
+Josh's Prototype Javascript Relationship Editor
+===============================================
+
+version 1.0 - 10 March 2013
+Copyright (c) 2013 Joshua Hawcroft <dev@joshhawcroft.com>
+
+
+Description
+-----------
+
+Implementation of a visual database relationship editor using HTML, Javascript and CSS.
+
+
+Requirements
+------------
+
+The implementation currently assumes a standards-compliant browser with support for the latest CSS 3 and Javascript APIs.
+
+In particular, it relies upon CSS 3 transform rotate, and on recent Javascript event handling APIs.
+
+It may not work in older browsers or in Internet Explorer, yet.
+
+
+Files
+-----
+
+The editor functionality is all encapsulated within jh-dbrelationeditor.js.
+
+Other supporting files include:
+
+*	jhtk-dragndrop.js
+	Quick, light-weight drag and drop implementation
+	
+*	jhtk-linediv.js
+	Mechanism to draw diagonal lines using only DIV elements
+
+*	jh-dbrelationeditor.css
+	Controls the colour and appearance of the editor.
+	
+*	API
+	Description of each of the functions exposed by the editor (public interface)
+
+*	README
+	This file.
+
+*	COPYING
+	GNU General Public License.
+
+
+License
+-------
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.

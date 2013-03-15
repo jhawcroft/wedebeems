@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Prototype Relationship Editor</title>
+<link rel="stylesheet" type="text/css" href="css/jh-dbrelationeditor.css">
+<script src="js/jhtk-dragndrop.js" type="text/javascript"></script>
+<script src="js/jhtk-linediv.js" type="text/javascript"></script>
+<script src="js/jh-dbrelationeditor.js" type="text/javascript"></script>
+<style>
+
+body
+{
+	font-family: Helvetica, sans-serif;
+}
+
+h1
+{
+	font-size: 16pt;
+}
+
+p
+{
+	font-size: 10pt;
+}
+
+#relation-editor-1
+{
+	position: relative;
+	overflow: scroll;
+	width: 90%;
+	height: 300px;
+	background-color: #666666;
+	border: inset 2px #CCCCCC;
+}
+
+#entity-list
+{
+	display: block;
+	visibility: hidden;
+	position: absolute;
+	width: 200px;
+	height: 200px;
+	background-color: white;
+	border: 2px solid black;
+	border-radius: 10px;
+	padding: 10px;
+	z-index: 10000;
+}
+
+#entity-list h1
+{
+	font-size: 14pt;
+	margin: 0;
+}
+
+#entity-list ul
+{
+	display: block;
+	height: 170px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+	list-style: none;
+	margin: 0;
+	font-size: 10pt;
+}
+
+#entity-list li
+{
+	margin: 0;
+}
+
+
+#edit-relation
+{
+	display: block;
+	visibility: hidden;
+	position: absolute;
+	width: 400px;
+	background-color: white;
+	border: 2px solid black;
+	border-radius: 10px;
+	padding: 10px;
+	z-index: 10000;
+}
+
+#edit-relation h1
+{
+	font-size: 14pt;
+	margin: 0;
+}
+
+#edit-relation-left
+{
+	width: 50%;
+	float: left;
+}
+
+#edit-relation-right
+{
+	width: 50%;
+	float: right;
+}
+
+#edit-relation-foot
+{
+	clear: both;
+}
+
+</style>
+<script>
+
+function showEntityList()
+{
+	list = document.getElementById('entity-list');
+	if (list.style.visibility == 'visible')
+	{
+		hideEntityList();
+		return;
+	}
+	
+	list.style.left = Math.round((window.innerWidth - list.offsetWidth) / 2) + 'px';
+	list.style.top = Math.round((window.innerHeight - list.offsetHeight) / 2) + 'px';
+	
+	listNode = list.children[1];
+	
+	htmlParts = new Array();
+	hiddenEntities = jhDbRelationEditor.getHiddenEntities();
+	c = hiddenEntities.length;
+	for (i = 0; i < c; i++)
+	{
+		htmlParts.push( '<li><a href="javascript:jhDbRelationEditor.showEntity(\'' + hiddenEntities[i] +
+			'\');hideEntityList();">' + hiddenEntities[i] + '</a></li>' );
+	}
+	listNode.innerHTML = htmlParts.join('');
+	
+	list.style.visibility = 'visible';
+}
+
+function hideEntityList()
+{
+	document.getElementById('entity-list').style.visibility = 'hidden';
+}
+
+
+var gEditRelID = 0;
+var gEditRelDetail = null;
+
+function beginEditRelation(inID, inDetail)
+{
+	dlog = document.getElementById('edit-relation');
+	
+	gEditRelID = inID;
+	gEditRelDetail = inDetail;
+	
+	document.getElementById('edit-relation-left-name').innerHTML = inDetail.entity1;
+	document.getElementById('edit-relation-right-name').innerHTML = inDetail.entity2;
+	document.getElementById('edit-relation-left-att').innerHTML = inDetail.attribute1;
+	document.getElementById('edit-relation-right-att').innerHTML = inDetail.attribute2;
+	
+	document.getElementById('edit-relation-enforce').checked = inDetail.enforceIntegrity;
+	document.getElementById('edit-relation-cascade-update').checked = inDetail.cascadeUpdate;
+	
+	switch (inDetail.deleteOption)
+	{
+	case 'restrict':
+		document.getElementById('edit-relation-del-restrict').checked = true;
+		break;
+	case 'cascade':
+		document.getElementById('edit-relation-del-cascade').checked = true;
+		break;
+	case 'null':
+		document.getElementById('edit-relation-del-null').checked = true;
+		break;
+	}
+	
+	dlog.style.left = Math.round((window.innerWidth - dlog.offsetWidth) / 2) + 'px';
+	dlog.style.top = Math.round((window.innerHeight - dlog.offsetHeight) / 2) + 'px';
+	dlog.style.visibility = 'visible';
+}
+
+function cancelEditRelation()
+{
+	document.getElementById('edit-relation').style.visibility = 'hidden';
+}
+
+function okEditRelation()
+{
+	cancelEditRelation();
+	jhDbRelationEditor.updateRelation(gEditRelID, gEditRelDetail);
+}
+
+function deleteRelation()
+{
+	cancelEditRelation();
+	jhDbRelationEditor.deleteRelation(gEditRelID);
+}
+
+</script>
+</head>
+<body>
+
+<h1>Prototype Relationship Editor</h1>
+
+<p>Copyright &copy; 2013 <a href="http://www.joshhawcroft.com/">Joshua Hawcroft</a></p>
+
+<div id="relation-editor-1"></div>
+
+<p>For testing, the editor has been made to only fill less than half the window.  This makes it easier to check behaviour when scrolling, and to ensure that drawing happens relative to the scrolling region.</p>
+
+<div id="entity-list">
+	<h1>Show Tables</h1>
+	<ul></ul>
+</div>
+
+<div id="edit-relation">
+	<h1>Edit Relation</h1>
+
+	<div id="edit-relation-left">
+		<p>Table/Query:<br>
+		<strong id="edit-relation-left-name">Left Table</strong></p>
+		
+		<p id="edit-relation-left-att"><select>
+			<option>Column</option>
+		</select></p>
+	</div>
+	
+	<div id="edit-relation-right">
+		<p>Related Table/Query:<br>
+		<strong id="edit-relation-right-name">Right Table</strong></p>
+		
+		<p id="edit-relation-right-att"><select>
+			<option>Column</option>
+		</select></p>
+	</div>
+
+	<div id="edit-relation-foot">
+		<fieldset>
+			<legend><p><input type="checkbox" id="edit-relation-enforce" onClick="gEditRelDetail.enforceIntegrity=this.checked;"> Enforce referential integrity</p></legend>
+			
+			<p><input type="checkbox" id="edit-relation-cascade-update" onClick="gEditRelDetail.cascadeUpdate=this.checked;"> Cascade update related fields</p>
+			<p>On delete: <input type="radio" name="edit-relation-del" id="edit-relation-del-restrict" onClick="gEditRelDetail.deleteOption='restrict';"> Restrict, <input type="radio" name="edit-relation-del" id="edit-relation-del-cascade" onClick="gEditRelDetail.deleteOption='cascade';"> Cascade, or <input type="radio" name="edit-relation-del" id="edit-relation-del-null" onClick="gEditRelDetail.deleteOption='null';"> Set NULL</p> 
+		</fieldset>
+		
+		<p>Relation Type: One-to-Many</p>
+		
+	
+		<a href="javascript:cancelEditRelation();">Cancel</a> <a href="javascript:okEditRelation();">OK</a> <a href="javascript:deleteRelation();">Delete</a>
+	</div>
+</div>
+
+<div id="change-list-wrapper" style="position: absolute; bottom: 10px;">
+<textarea id="change-list" rows="10" cols="60"></textarea>
+<a href="javascript:document.getElementById('change-list').value=JSON.stringify(jhDbRelationEditor.getChanges())">Get Changes</a>
+<p>This field can be used to inspect the relationship editor for recent changes.</p>
+</div>
+
+
+<script>
+
+/*
+ * start and load the relationship editor...
+ */
+
+function handle_dirty()
+{
+	list = document.getElementById('change-list');
+	list.value = '**DIRTY**';
+	//alert(JSON.stringify(jhDbRelationEditor.getChanges()));
+}
+
+jhDbRelationEditor.start('relation-editor-1', showEntityList, handle_dirty, beginEditRelation);
+
+
+jhDbRelationEditor.defineEntity({
+	name			: 'page',
+	x				: 200,
+	y				: 50,
+	attributes		: [
+			{
+				name		: 'page_id',
+				key			: true,
+			},
+			{
+				name		: 'page_title',
+				key			: false,
+			},
+			{
+				name		: 'page_source',
+				key			: false,
+			},
+			{
+				name		: 'page_abstract',
+				key			: false,
+			},
+			{
+				name		: 'page_status_id',
+				key			: false,
+			},
+		],
+	visible			: true
+	});
+
+jhDbRelationEditor.defineEntity({
+	name			: 'page_status',
+	x				: 550,
+	y				: 80,
+	attributes		: [
+			{
+				name		: 'page_status_id',
+				key			: true,
+			},
+			{
+				name		: 'page_status',
+				key			: false,
+			},
+		],
+	visible			: true
+	});
+	
+jhDbRelationEditor.defineEntity({
+	name			: 'test_entity',
+	x				: 500,
+	y				: 250,
+	attributes		: [
+			{
+				name		: 'test_id',
+				key			: true,
+			},
+			{
+				name		: 'apricots_count',
+				key			: false,
+			},
+			{
+				name		: 'pear_count',
+				key			: false,
+			},
+		],
+	visible			: false
+	});
+
+jhDbRelationEditor.defineRelation({
+	name			: 'relation_1',
+	entity1			: 'page',
+	attribute1		: 'page_status_id',
+	entity2			: 'page_status',
+	attribute2		: 'page_status_id',
+	enforceIntegrity: true,
+	cascadeUpdate	: false,
+	deleteOption	: 'restrict'
+	});
+
+
+
+
+</script>
+
+</body>
+</html>

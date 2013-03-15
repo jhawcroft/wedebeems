@@ -1,0 +1,144 @@
+jhDbRelationEditor.start()
+==========================
+
+Initalizes the relationship editor.
+
+Parameters
+----------
+
+editor-element-id (String)
+	The name of the DIV element that will contain the editor functionality.
+
+add-entity-callback (Callback)
+	Function to call when the user clicks in the blank area of the editor;
+	intended to display a list of hidden entities for the user to pick.
+	
+	Hidden entities can be obtained by calling .getChanges().
+
+dirty-callback (Callback)
+	Function called when a change is made in the editor.
+
+edit-relation-callback (Callback)
+	Function called when the user clicks on a relationship intending to begin making changes to that relationship.
+	
+	Callback function takes the following parameters:
+	
+	ID		An integer ID to identify the relationship
+	Detail	A structure containing details of the relationship currently:
+	
+	{
+	entity1			: left entity,
+	attribute1		: left attribute,
+	entity2			: right entity,
+	attribute2		: right attribute,
+	enforceIntegrity: enforce referential integrity?,
+	cascadeUpdate	: cascade update foreign keys?,
+	deleteOption	: cascade delete related records?
+	}
+
+	The client should call .updateRelation() to make changes to the relationship, passing the ID as the first argument.
+
+
+jhDbRelationEditor.getChanges()
+===============================
+
+Returns an array of data structures representing the changes that have been made since the last call to .getChanges().
+
+
+jhDbRelationEditor.deleteRelation()
+===================================
+
+Deletes a specific relationship.
+
+Parameters
+----------
+
+inID
+	The ID of the relationship as obtained by the edit relationship callback function.
+
+
+jhDbRelationEditor.updateRelation()
+===================================
+
+Makes changes to the specified relationship.
+
+Parameters
+----------
+
+inID
+	The ID of the relationship to change, as obtained by the edit relationship callback function.
+
+inDetail
+	A data structure representing the new relationship detail:
+	
+	{
+	entity1			: left entity (String),
+	attribute1		: left attribute (String),
+	entity2			: right entity (String),
+	attribute2		: right attribute (String),
+	enforceIntegrity: enforce referential integrity? (Boolean),
+	cascadeUpdate	: cascade update foreign keys? (Boolean),
+	deleteOption	: cascade delete related records? (String)
+					  must be: 'restrict', 'cascade' or 'null'
+	}
+	
+	
+jhDbRelationEditor.showEntity()
+===============================
+
+Makes an entity visible.
+
+Parameters
+----------
+
+inEntityName
+	The name of the entity to show.
+
+
+jhDbRelationEditor.defineEntity()
+=================================
+
+Defines an entity. 
+
+Parameters
+----------
+
+inDetail
+	A data structure representing an entity:
+
+	{
+	name			: name of the entity (String),
+	x				: left coordinate of the entity (Integer),
+	y				: top coordinate of the entity (Integer),
+	attributes		: [
+			{
+				name		: attribute name (String),
+				key			: is primary key? (Boolean),
+			},
+			...
+		],
+	visible			: should the entity be visible at start()? (Boolean)
+	}
+
+
+jhDbRelationEditor.defineRelation()
+===================================
+
+Defines a relationship. 
+
+Parameters
+----------
+
+inDetail
+	A data structure representing a relationship:
+
+	{
+	entity1			: left entity (String),
+	attribute1		: left attribute (String),
+	entity2			: right entity (String),
+	attribute2		: right attribute (String),
+	enforceIntegrity: enforce referential integrity? (Boolean),
+	cascadeUpdate	: cascade update foreign keys? (Boolean),
+	deleteOption	: cascade delete related records? (String)
+					  must be: 'restrict', 'cascade' or 'null'
+	}
